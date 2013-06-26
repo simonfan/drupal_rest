@@ -1,0 +1,1 @@
+This component builds up a simple rest endpoint easily extendable and customizable. (via code only)
