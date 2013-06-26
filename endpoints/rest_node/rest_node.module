@@ -1,0 +1,38 @@
+<?php
+/**
+ * Implement hook_menu(), just to intercept the request for this query_api.
+ */
+
+
+// load http method hooks
+// drupal_get_path($type, $name)
+$path = drupal_get_path('module', 'rest_node');
+
+require_once($path.'/processors/rest_node.get');
+require_once($path.'/processors/rest_node.post');
+require_once($path.'/processors/rest_node.delete');
+require_once($path.'/processors/rest_node.put');
+
+function rest_node_menu() {
+	// module_load_include($type, $module, $name = NULL)
+	module_load_include('inc', 'rest_node', 'rest_node.get');
+	
+	$items = array();
+
+	$items['admin/rest/node'] = array(
+		'title' => 'REST API node endpoint admin',
+		'type' => MENU_LOCAL_TASK,
+
+		'page callback' => 'rest_node_admin',
+		'access arguments' => array('dashboard'),
+	);
+
+
+
+
+	return $items;
+}
+
+function rest_node_admin() {
+	return 'rest node admin';
+}

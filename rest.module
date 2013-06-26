@@ -1,0 +1,93 @@
+<?php
+/**
+ * Implement hook_menu(), just to intercept the request for this query_api.
+ */
+
+function rest_menu() {
+	$items = array();
+
+	$items['admin/rest'] = array(
+		'title' => 'REST API admin',
+		'type' => MENU_NORMAL_ITEM,
+
+		'page callback' => 'rest_admin',
+		'access arguments' => array('dashboard'),
+	);
+
+
+	$items['rest/%'] = array(
+		'title' => 'REST API ENDPOINT',
+		'description' => 'This is an endpoint to receive REST requests.',
+		'page callback' => 'rest_process_query',
+		'page arguments' => array(1),	// pass the second url parameter
+		'access callback' => TRUE, 		// access restrictions shall be done in the endpoint definition script
+	);
+
+	return $items;
+}
+
+// admin page
+function rest_admin() {
+	return 'admin page';
+}
+
+
+// the rest api query processor:
+// Creates the hooks
+function rest_process_query($endpoint) {
+	// discover the method
+	$method = $_SERVER['REQUEST_METHOD'];
+
+	$method_endpoint = $method .'_'. $endpoint;
+
+	////////////////////////////
+	/////// RESPONSE ! /////////
+	////////////////////////////
+	$response = array();
+
+
+	////////////////////////////
+	//// HOOK 1: FETCH DATA ////
+	////////////////////////////
+
+	// define %method_%endpoint_fetch_data hook name
+	$fetch_hook_name = $method_endpoint .'_fetch_data';
+
+	// @see user_module_invoke()
+	foreach (module_implements($fetch_hook_name) as $module) {
+		$function = $module .'_'. $fetch_hook_name;
+		// will call all modules implementing hook_hook_name
+		// and can pass each argument as reference determined
+		// by the function declaration
+		$function($response);
+	}
+
+
+
+	////////////////////////////
+	//// HOOK 2: ALTER DATA ////
+	////////////////////////////
+
+	// define %method_%endpoint_data_alter hook
+	$data_alter_hook_name = $method_endpoint .'_response';
+
+	// will call all modules implementing hook_my_data_alter
+	drupal_alter($data_alter_hook_name, $response);
+
+	////////////////////////////
+	/////// DEBUG //////////////
+	////////////////////////////
+	if ( !empty($_GET['debug']) || !empty($_POST['debug'])) {
+		$response['%method_%endpoint_fetch_data hook'] = $fetch_hook_name;
+		$response['%method_%endpoint_data_alter hook'] = $data_alter_hook_name;
+	}
+
+	///////////////////
+	///// RESPOND /////
+	///////////////////
+	$response = json_encode($response);
+
+	header('Content-type: application/json');
+	echo $response;
+	die();
+}

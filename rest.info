@@ -1,0 +1,9 @@
+name = REST API main
+description = Pseudo-framework for building up REST API endpoint modules.
+package = REST API
+core = 7.x
+
+files[] = rest.module
+
+;dependencies[] = 
+
