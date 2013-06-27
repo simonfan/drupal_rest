@@ -1,0 +1,64 @@
+<?php
+
+function rest_query_test() {
+	echo '<pre>';
+
+	/*
+		$options = array(
+			'entity_type' => 'string',
+			'id_field_value' => 'string',
+			'required' => array(),				// object to be passed on to the rest.item
+			'length' => 30
+		);
+	*/
+
+	$required = array(
+		'properties' => array(
+			'title' => array('alias' => 'title'),
+			'nid' => array('alias' => 'id')
+		),
+		'fields' => array(
+			'field_related' => array(
+				'alias' => 'related',
+				'id_field_name' => 'nid',
+				'entity_properties' => array('title','nid'), // array of properties required from the referred entity,
+				'entity_fields' => array(
+					'field_image' => array(
+						'styles' => array('thumbnail')
+					),
+				),	// array of fields required from the referred entity (defined in media configs),
+				'aliases' => array('field_image' => 'IMAGES'),		// aliases for the properties and fields
+				'limit' => 10,  // how many results to retrieve
+				'entity_properties' => array('nid','title'),
+				'entity_fields' => array(
+					'field_image' => array(
+						'styles' => array('thumbnail')
+					)
+				),
+			),
+		),
+	);
+
+	$options = array(
+		'entity_type' => 'node',
+		'id_field_value' => 'nid',
+		'required' => $required,
+		'length' => 30,
+	);
+
+	$query = new REST_EntityFieldQuery($options);
+
+	$query
+		->entityCondition('entity_type', 'node')
+		->entityCondition('bundle', 'article');
+
+	if (isset($_GET['id'])) {
+		$query->propertyCondition('nid', $_GET['id']);
+	}
+
+	$results = $query->execute();
+	$results = $results->export();	
+
+	var_dump($results);
+	die();
+}

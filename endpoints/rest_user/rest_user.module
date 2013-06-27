@@ -6,16 +6,16 @@
 
 // load http method hooks
 // drupal_get_path($type, $name)
-$path = drupal_get_path('module', 'rest_node');
+$path = drupal_get_path('module', 'rest_entity');
 
-require_once($path.'/processors/rest_node.get');
-require_once($path.'/processors/rest_node.post');
-require_once($path.'/processors/rest_node.delete');
-require_once($path.'/processors/rest_node.put');
+require_once($path.'/processors/rest_entity.get');
+require_once($path.'/processors/rest_entity.post');
+require_once($path.'/processors/rest_entity.delete');
+require_once($path.'/processors/rest_entity.put');
 
-function rest_node_menu() {
+function rest_entity_menu() {
 	// module_load_include($type, $module, $name = NULL)
-	module_load_include('inc', 'rest_node', 'rest_node.get');
+	module_load_include('inc', 'rest_entity', 'rest_entity.get');
 	
 	$items = array();
 
@@ -23,7 +23,7 @@ function rest_node_menu() {
 		'title' => 'REST API node endpoint admin',
 		'type' => MENU_LOCAL_TASK,
 
-		'page callback' => 'rest_node_admin',
+		'page callback' => 'rest_entity_admin',
 		'access arguments' => array('dashboard'),
 	);
 
@@ -33,6 +33,6 @@ function rest_node_menu() {
 	return $items;
 }
 
-function rest_node_admin() {
+function rest_entity_admin() {
 	return 'rest node admin';
 }

@@ -1,0 +1,9 @@
+<?php
+/**
+ * Implement hook_DELETE_entity_fetch_data():
+ * request method: DELETE
+ * endpoint: 'entity'
+ */
+function rest_entity_DELETE_entity_fetch_data(&$res) {
+	$res['lalala'] = 'aaa';
+}

@@ -1,10 +1,10 @@
 <?php
 /**
- * Implement hook_GET_node_fetch_data():
+ * Implement hook_GET_entity_fetch_data():
  * request method: GET
- * endpoint: 'node'
+ * endpoint: 'entity'
  */
-function rest_node_GET_node_fetch_data(&$res) {
+function rest_entity_GET_entity_fetch_data(&$res) {
 
 	$data = $_GET;
 
@@ -123,7 +123,7 @@ function rest_node_GET_node_fetch_data(&$res) {
 		if (!empty($results)) {
 			$ids = array_keys($results);
 
-			$artworks = node_load_multiple($ids);
+			$artworks = entity_load_multiple($ids);
 
 			// filter out the data out of the required_data array.
 			foreach ($artworks as $id => $artwork) {

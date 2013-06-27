@@ -40,7 +40,6 @@ class ArtworkQuery extends EntityFieldQuery {
 		// call parent "execute()" method.
 		$this->efq_result = parent::execute();
 
-
 		// with the response of the parent execute query, 
 		// extract required fields.
 		if ( isset($this->efq_result['node']) && count($this->efq_result['node']) > 0 ) {

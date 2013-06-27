@@ -1,9 +1,0 @@
-name = REST API node endpoint
-description = Fetches nodes.
-package = REST API
-core = 7.x
-
-files[] = rest_node.module
-files[] = includes/rest_node.nodequery.inc
-
-dependencies[] = rest
