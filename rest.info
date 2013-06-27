@@ -4,8 +4,3 @@ package = REST API
 core = 7.x
 
 files[] = rest.module
-files[] = includes/rest.query.inc
-files[] = includes/rest.item.inc
-
-dependencies[] = field_reader
-

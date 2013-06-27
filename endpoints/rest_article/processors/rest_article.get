@@ -59,7 +59,7 @@ function rest_article_GET_article_fetch_data(&$RES) {
 	/////////////////////////////////
 	////// BUILD QUERY OBJECT ///////
 	/////////////////////////////////
-	$query = new REST_EntityFieldQuery($options);
+	$query = new Oop_EntityQuery($options);
 
 	//////////////////////////////////
 	//////// ID REQUEST //////////////

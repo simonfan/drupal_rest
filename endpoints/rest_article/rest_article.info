@@ -6,3 +6,5 @@ core = 7.x
 files[] = rest_article.module
 
 dependencies[] = rest
+dependencies[] = field_reader
+dependencies[] = oop_entity
