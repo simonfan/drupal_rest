@@ -19,22 +19,23 @@ function rest_article_GET_article_fetch_data(&$RES) {
 		'fields' => array(
 			'field_related' => array(
 				'alias' => 'related',
-				'id_field_name' => 'nid',
-				'entity_properties' => array('title','nid'), // array of properties required from the referred entity,
-				'entity_fields' => array(
-					'field_image' => array(
-						'styles' => array('thumbnail')
-					),
-				),	// array of fields required from the referred entity (defined in media configs),
-				'aliases' => array('field_image' => 'IMAGES'),		// aliases for the properties and fields
+				'entity_type' => 'node', 
 				'limit' => 10,  // how many results to retrieve
-				'entity_properties' => array('nid','title'),
-				'entity_fields' => array(
-					'field_image' => array(
-						'styles' => array('thumbnail')
-					)
+				'requirements' => array(
+					'properties' => array(
+						'title' => array(),
+						'nid' => array()
+					), 
+					'fields' => array(
+						'field_image' => array(
+							'alias' => 'IMAGE',
+							'styles' => array('thumbnail'),
+							'limit' => 1
+						),
+					),	
 				),
 			),
+			'body' => array()
 		),
 	);
 
