@@ -62,6 +62,8 @@ function rest_process_query($endpoint) {
 	// discover the method
 	$method = $_SERVER['REQUEST_METHOD'];
 
+	$endpoint = str_replace('/', '_', $endpoint);
+
 	$method_endpoint = $method .'_'. $endpoint;
 
 	////////////////////////////

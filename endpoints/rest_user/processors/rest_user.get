@@ -1,138 +1,104 @@
 <?php
 /**
- * Implement hook_GET_entity_fetch_data():
+ * Implement hook_GET_user_fetch_data():
  * request method: GET
- * endpoint: 'entity'
+ * endpoint: 'user'
  */
-function rest_entity_GET_entity_fetch_data(&$res) {
+function rest_user_GET_user_fetch_data(&$RES) {
 
 	$data = $_GET;
 
-	if (!isset($data)) {
-		return;
-	}
-
-	$required_data = array(
-		'title' => array(
-			'type' => 'property:title',
-			'alias' => 'title',
-		),
-		'nid' => array(
-			'type' => 'property:nid',
-		)
-
-	);
-
-	$required_data = array(
-		// properties: property_name
+	/////////////////////////////////
+	///////// REQUIREMENTS //////////
+	/////////////////////////////////
+	$requirements = array(
 		'properties' => array(
-			'title' => array(
-				'alias' => 'title',
-			),
-			'nid' => array(
-				'alias' => 'id',
-			)
+			'name' => array('alias' => 'name'),
+			'uid' => array('alias' => 'id'),
+			'mail' => array('alias' => 'mail'),
+			'url' => array(),
+			'edit_url' => array(),
+			'last_access' => array(),
+			'last_login' => array(),
+			'created' => array(),
+			'roles' => array(),
+			'status' => array(),
+			'theme' => array(),
 		),
-		// fields: field_name => array( key_in_field => , alias => );
 		'fields' => array(
-			'field_artist' => array(
-				'type' => 'entityreference',
-				'required_entity_fields' => array('title'),
-				'key' => 'target_id',
-				'alias' => 'artist'
-			),
-			'body' => array(
-				'key' => 'value',
-				'alias' => 'observations',
-			),
-			'field_image' => array(
-				'type' => 'image',
-				'alias' => 'images',
-				'styles' => array('thumbnail', 'medium', 'large'),	// this is a var used only by the image value getter.
-			),
-			'field_price' => array(
-				'key' => 'value',
-				'alias' => 'price',
-			),
-			'field_colors' => array(
-				'key' => 'rgb',
-				'alias' => 'colors',
-			),
-			'field_height' => array(
-				'key' => 'value',
-				'alias' => 'height',
-			),
-			'field_width' => array(
-				'key' => 'value',
-				'alias' => 'width',
-			),
-			'field_depth' => array(
-				'key' => 'value',
-				'alias' => 'depth',
-			)
 		),
 	);
-
-
-
 
 
 	//////////////////////////////////
 	////////// PAGING ////////////////
 	//////////////////////////////////
+	$length = ( !empty($data['page-length']) ) ? $data['page-length'] : 30;
+	$start = ( !empty($data['last-item-pos'])) ? $data['last-item-pos'] +1 : 0;
 
+	/////////////////////////////////
+	////// QUERY OPTIONS ////////////
+	/////////////////////////////////
+	$options = array(
+		'entity_type' => 'user',
+		'requirements' => $requirements,				// object to be passed on to the rest.item
+		'start' => $start,
+		'length' => $length
+	);
 
-	$length = ( isset( $data['page-length'] ) && $data['page-length'] != 'not-set' ) ? $data['page-length'] : 21;
-	$start = ( isset( $data['lastPos'] ) && $data['lastPos'] != 'not-set') ? $data['lastPos'] +1 : 0;
+	/////////////////////////////////
+	////// BUILD QUERY OBJECT ///////
+	/////////////////////////////////
+	$query = new Oop_EntityQuery($options);
 
+	//////////////////////////////////
+	//////// ID REQUEST //////////////
+	//////////////////////////////////
+	// RETURN IMMEDIATELY
+	if (!empty($data['id'])) {
+		$results = $query
+						->propertyCondition('uid', $data['id'])
+						->execute()
+						->export();
 
-	////////////////////////////////
-	/////// PAGING PARAMS //////////
-	////////////////////////////////
+		$RES = $results;
 
+	} else {
 
+		////////////////////////////////////
+		/////// SET QUERY PARAMETERS ///////
+		////////////////////////////////////
+		if (!empty($data['id'])) {
 
-
-
-
-	/////////////////////////////////////////
-	/////////// TEMPORARY ///////////////////
-	/////////////////////////////////////////
-
-	// for now, we redirect the search by here, because of the front-end. 
-	// As at the client-side the url used is the same.
-	if ($_GET['action'] == 'search-request' && !empty($_GET['query']) && $_GET['query'] != 'not-set' ) {
-		$index = search_api_index_load("nail_index");
-
-		// build the search query object
-		$search_query = new SearchApiQuery($index);
-
-		// parse a query
-		$search_query->keys($_GET['query']);
-
-		// set the range
-		$search_query->range($start, $length);
-
-		$data = $search_query->execute();
-		$results = $data['results'];
-
-		// all the results contain are the ID's with the scores.
-		// now get the entities effectively.
-		$artworks = array();
-
-		if (!empty($results)) {
-			$ids = array_keys($results);
-
-			$artworks = entity_load_multiple($ids);
-
-			// filter out the data out of the required_data array.
-			foreach ($artworks as $id => $artwork) {
-				$artworks[ $id ] = new ArtworkObj($artwork, $required_data);
-			}
 		}
 
-		rest_api_artwork_respond($artworks, 'search-query response', $_GET['debug']);
+
+		$results = $query->execute()->export();
+
+		$RES = $results;
 	}
 
 
+
+
+	///////////////////////////////
+	///////// DEBUG ///////////////
+	///////////////////////////////
+	if (!empty($data['debug'])) {
+
+		echo '<pre>';
+		$var = entity_get_property_info('user');
+
+	var_dump(array_keys($var['properties']) );
+	die();
+
+	$data = $_GET;
+
+		
+		echo '<pre>';
+
+		var_dump($RES);
+
+		die();
+	}
 }

@@ -51,8 +51,7 @@ function rest_article_GET_article_fetch_data(&$RES) {
 	/////////////////////////////////
 	$options = array(
 		'entity_type' => 'node',
-		'id_field_value' => 'nid',
-		'required' => $requirements,				// object to be passed on to the rest.item
+		'requirements' => $requirements,				// object to be passed on to the rest.item
 		'start' => $start,
 		'length' => $length
 	);
