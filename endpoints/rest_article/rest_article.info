@@ -1,9 +1,0 @@
-name = REST API article endpoint
-description = Fetches nodes.
-package = REST API
-core = 7.x
-
-files[] = rest_article.module
-
-dependencies[] = rest
-dependencies[] = oop_entity

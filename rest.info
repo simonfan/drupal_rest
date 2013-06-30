@@ -4,3 +4,5 @@ package = REST API
 core = 7.x
 
 files[] = rest.module
+
+dependencies[] = oop_entity

@@ -1,8 +1,0 @@
-name = REST API user endpoint
-description = Fetches nodes.
-package = REST API
-core = 7.x
-
-files[] = rest_user.module
-
-dependencies[] = rest

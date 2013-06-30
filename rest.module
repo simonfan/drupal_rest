@@ -7,45 +7,80 @@ function rest_menu() {
 	$items = array();
 
 	$items['admin/rest'] = array(
-		'title' => 'REST API admin',
+		'title' => 'REST API info',
 		'type' => MENU_NORMAL_ITEM,
 
 		'page callback' => 'rest_admin',
 		'access arguments' => array('dashboard'),
 	);
 
-/*
-	$items['admin/rest/tests/item'] = array(
-		'title' => 'REST API tests',
 
-		'page callback' => 'rest_item_test',
-		'file' => 'tests/rest.item.test',
-		'access arguments' => array('dashboard'),
-	);
-*/
+	//////////////////////////////
+	////// ENDPOINTS ARRAY ///////
+	//////////////////////////////
+	/*
+		$endpoint = array(
+			'route' => 'rest/'.$name,
+			'access callback' => TRUE,
+			'access arguments' => array(),
+			'entity type' => $name,
+			'entity bundle' => NULL,
+		);
+	*/
+	$endpoints = array();
 
-	$items['admin/rest/tests/query'] = array(
-		'title' => 'REST API tests',
+	foreach (module_implements('register_rest_endpoint') as $module) {
+		// will call all modules implementing hook_hook_name and 
+		// push the results onto the $result array
+		$add_endpoints = module_invoke($module, 'register_rest_endpoint');
+		$endpoints = array_merge($endpoints, $add_endpoints);
+	}
+	//////////////////////////////
+	////// ENDPOINTS ARRAY ///////
+	//////////////////////////////
 
-		'page callback' => 'rest_query_test',
-		'file' => 'tests/rest.query.test',
-		'access arguments' => array('dashboard'),
-	);
+	//////////////////////////////
+	//// BUILD ENDPOINTS /////////
+	//////////////////////////////
+	foreach ($endpoints as $name => $data) {
 
+		$data = _rest_array_values_default($data, array(
+			'route' => 'rest/'.$name,
+			'access callback' => TRUE,
+			'access arguments' => array(),
+			'entity type' => $name,
+			'entity bundle' => NULL,
+		));
 
+		// route to the endpoint itself
+		$items[ $data['route'] ] = array(
+			'title' => 'REST API endpoint: '. $name,
+			'description' => 'This is an endpoint to receive REST requests.',
 
+			'page callback' => 'rest_endpoint',
+			'page arguments' => array($name),
 
-	/////////////////////////
-	////////// ENDPOINT /////
-	/////////////////////////
+			'access callback' => $data['access callback'],
+			'access arguments' => $data['access arguments'],
+		);
 
-	$items['rest/%'] = array(
-		'title' => 'REST API ENDPOINT',
-		'description' => 'This is an endpoint to receive REST requests.',
-		'page callback' => 'rest_process_query',
-		'page arguments' => array(1),	// pass the second url parameter
-		'access callback' => TRUE, 		// access restrictions shall be done in the endpoint definition script
-	);
+		// route to info page
+		$items[ 'admin/rest/info/' . $name ] = array(
+			'title' => 'REST API endpoint: '. $name,
+			'description' => 'Displays information about the endpoint queried entity.',
+
+			'type' => MENU_LOCAL_TASK,
+
+			'page callback' => 'rest_endpoint_info',
+			'page arguments' => array($data['entity type'], $data['entity bundle']),
+
+		//	'access callback' => 
+			'access arguments' => array('dashboard'),
+		);
+	}
+	//////////////////////////////
+	//// BUILD ENDPOINTS /////////
+	//////////////////////////////
 
 	return $items;
 }
@@ -58,7 +93,7 @@ function rest_admin() {
 
 // the rest api query processor:
 // Creates the hooks
-function rest_process_query($endpoint) {
+function rest_endpoint($endpoint) {
 	// discover the method
 	$method = $_SERVER['REQUEST_METHOD'];
 
@@ -117,3 +152,77 @@ function rest_process_query($endpoint) {
 	echo $response;
 	die();
 }
+
+
+
+
+
+
+
+function rest_endpoint_info($entity_type, $entity_bundle) {
+
+	$item_data = array(
+		'entity_type' => $entity_type,
+	//	'entity' =>
+		'entity_bundle' => $entity_bundle,
+	//	'requirements' =>
+	);
+
+	$oop_entity_item = new Oop_EntityItem($item_data);
+	
+	$item = $oop_entity_item->export();
+
+	$properties = $oop_entity_item->info('properties');
+	$property_info = $oop_entity_item->info('property_info');
+
+	$fields = $oop_entity_item->info('fields');
+	$field_info = $oop_entity_item->info('field_info');
+
+
+
+//	$properties = entity_get_property_info('user');
+
+	$page = '<pre>';
+	$page .= '========= PROPERTIES =============<br>';
+	$page .= print_r($properties, TRUE);
+	$page .= '========= PROPERTIES =============<br>';
+
+	$page .= '========= FIELDS =============<br>';
+	$page .= print_r($fields, TRUE);
+	$page .= '========= FIELDS =============<br>';
+	$page .= '</pre>';
+
+	return $page;
+}
+
+
+
+
+
+
+
+///////////////////////////////////
+////////// HELPER FUNCTIONS ///////
+///////////////////////////////////
+
+/**
+ * Defines common helper functions for the rest API and ENDPOINT modules.
+ */
+function _rest_array_values_default($array, $defaults) {
+	foreach ($defaults as $key => $default_value) {
+		$array[ $key ] = isset($array[ $key ]) ? $array[ $key ] : $default_value;
+	}
+
+	return $array;
+}
+
+
+function _rest_require_all($path) {
+	// include all files from /formatters
+	foreach (scandir($path) as $filename) {
+	    $fpath = $path.'/'.$filename;
+	    if (is_file($fpath)) {
+	        require $fpath;
+	    }
+	}
+} 

@@ -1,9 +1,0 @@
-<?php
-/**
- * Implement hook_POST_node_fetch_data():
- * request method: POST
- * endpoint: 'node'
- */
-function rest_node_POST_node_fetch_data(&$res) {
-	$res['lalala'] = 'aaa';
-}
